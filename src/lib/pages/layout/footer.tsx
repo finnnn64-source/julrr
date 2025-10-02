@@ -3,30 +3,54 @@
 import Link from "next/link"
 import { useEffect } from 'react'
 
+declare global {
+  interface Window {
+    PartnersCoupang?: {
+      G: new (config: {
+        id: number;
+        template: string;
+        trackingCode: string;
+        width: string;
+        height: string;
+        tsource: string;
+      }) => void;
+    };
+  }
+}
+
 export default function Footer() {
   useEffect(() => {
+    // Load Coupang Partners script
     const script1 = document.createElement('script')
     script1.src = 'https://ads-partners.coupang.com/g.js'
     script1.async = true
-    document.body.appendChild(script1)
 
     script1.onload = () => {
-      const script2 = document.createElement('script')
-      script2.innerHTML = `
-        new PartnersCoupang.G({
-          "id":928471,
-          "template":"carousel",
-          "trackingCode":"AF8730588",
-          "width":"680",
-          "height":"140",
-          "tsource":""
-        });
-      `
-      document.body.appendChild(script2)
+      // Wait for script to be fully loaded
+      setTimeout(() => {
+        if (window.PartnersCoupang) {
+          const container = document.getElementById('coupang-banner')
+          if (container) {
+            container.innerHTML = '' // Clear existing content
+            new window.PartnersCoupang.G({
+              id: 928471,
+              template: "carousel",
+              trackingCode: "AF8730588",
+              width: "680",
+              height: "140",
+              tsource: ""
+            })
+          }
+        }
+      }, 100)
     }
 
+    document.head.appendChild(script1)
+
     return () => {
-      document.body.removeChild(script1)
+      if (document.head.contains(script1)) {
+        document.head.removeChild(script1)
+      }
     }
   }, [])
 
