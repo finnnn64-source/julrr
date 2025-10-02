@@ -112,7 +112,17 @@ export default function Footer() {
         {/* Coupang Partners Banner */}
         <div className="pt-8 border-t">
           <div className="flex justify-center">
-            <div id="coupang-banner" className="w-full max-w-[680px] h-[140px]" />
+            <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-6 w-full max-w-[720px]">
+              <div className="flex items-center justify-center gap-2 mb-4">
+                <span className="text-2xl">🎁</span>
+                <p className="text-sm text-gray-600">
+                  파트너스 활동으로 일정액의 수수료를 제공받을 수 있습니다
+                </p>
+              </div>
+              <div className="flex justify-center">
+                <div id="coupang-banner" className="w-full max-w-[680px] min-h-[140px]" />
+              </div>
+            </div>
           </div>
         </div>
 
