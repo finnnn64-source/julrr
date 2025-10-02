@@ -8,12 +8,36 @@ export default function Hero() {
   const [url, setUrl] = useState("")
   const [shortUrl, setShortUrl] = useState("")
   const [copied, setCopied] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleShorten = () => {
+  const handleShorten = async () => {
     if (!url) return
-    // 임시로 랜덤 코드 생성
-    const randomCode = Math.random().toString(36).substring(2, 8)
-    setShortUrl(`julrr.com/${randomCode}`)
+
+    setLoading(true)
+    setError("")
+
+    try {
+      const response = await fetch('/api/shorten', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      })
+
+      const data = await response.json() as { shortUrl?: string; error?: string }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to shorten URL')
+      }
+
+      setShortUrl(data.shortUrl || '')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Something went wrong')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleCopy = () => {
@@ -65,11 +89,18 @@ export default function Hero() {
               />
               <button
                 onClick={handleShorten}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-4 rounded-xl transition-colors"
+                disabled={loading}
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-4 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                URL 줄이기
+                {loading ? '처리 중...' : 'URL 줄이기'}
               </button>
             </div>
+
+            {error && (
+              <div className="mt-4 p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                <p className="text-red-600 text-center">{error}</p>
+              </div>
+            )}
 
             {shortUrl && (
               <div className="mt-6 p-4 bg-orange-50 rounded-xl border-2 border-orange-200">
