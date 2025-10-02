@@ -1,6 +1,35 @@
+'use client'
+
 import Link from "next/link"
+import { useEffect } from 'react'
 
 export default function Footer() {
+  useEffect(() => {
+    const script1 = document.createElement('script')
+    script1.src = 'https://ads-partners.coupang.com/g.js'
+    script1.async = true
+    document.body.appendChild(script1)
+
+    script1.onload = () => {
+      const script2 = document.createElement('script')
+      script2.innerHTML = `
+        new PartnersCoupang.G({
+          "id":928471,
+          "template":"carousel",
+          "trackingCode":"AF8730588",
+          "width":"680",
+          "height":"140",
+          "tsource":""
+        });
+      `
+      document.body.appendChild(script2)
+    }
+
+    return () => {
+      document.body.removeChild(script1)
+    }
+  }, [])
+
   return (
     <footer className="border-t bg-white py-12">
       <div className="container mx-auto px-6">
@@ -80,8 +109,15 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Coupang Partners Banner */}
+        <div className="pt-8 border-t">
+          <div className="flex justify-center">
+            <div id="coupang-banner" className="w-full max-w-[680px] h-[140px]" />
+          </div>
+        </div>
+
         {/* Bottom */}
-        <div className="pt-8 border-t text-center">
+        <div className="pt-8 text-center">
           <p className="text-gray-500 text-sm">
             © 2024 Julrr. All rights reserved.
           </p>
