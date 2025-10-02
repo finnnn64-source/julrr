@@ -2,10 +2,12 @@ import { Redis } from '@upstash/redis';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,6 +23,14 @@ export async function POST(request: NextRequest) {
       new URL(url);
     } catch {
       return NextResponse.json({ error: 'Invalid URL' }, { status: 400 });
+    }
+
+    // Check if Redis is configured
+    if (!redis) {
+      return NextResponse.json(
+        { error: 'Database not configured. Please set up Upstash Redis in Vercel.' },
+        { status: 503 }
+      );
     }
 
     // Generate short code
