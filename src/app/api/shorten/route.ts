@@ -1,6 +1,11 @@
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,8 +26,8 @@ export async function POST(request: NextRequest) {
     // Generate short code
     const shortCode = nanoid(6);
 
-    // Store in KV
-    await kv.set(`url:${shortCode}`, url);
+    // Store in Redis
+    await redis.set(`url:${shortCode}`, url);
 
     // Get the base URL
     const baseUrl = request.headers.get('host') || 'julrr.com';
