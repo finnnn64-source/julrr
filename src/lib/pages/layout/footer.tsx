@@ -20,27 +20,49 @@ declare global {
 
 export default function Footer() {
   useEffect(() => {
+    const container = document.getElementById('coupang-banner')
+    if (!container) return
+
+    // Create iframe wrapper to contain the banner
+    const wrapper = document.createElement('div')
+    wrapper.style.width = '100%'
+    wrapper.style.display = 'flex'
+    wrapper.style.justifyContent = 'center'
+    wrapper.style.overflow = 'hidden'
+
     // Load Coupang Partners script
     const script1 = document.createElement('script')
     script1.src = 'https://ads-partners.coupang.com/g.js'
     script1.async = true
 
     script1.onload = () => {
-      // Wait for script to be fully loaded
       setTimeout(() => {
         if (window.PartnersCoupang) {
-          const container = document.getElementById('coupang-banner')
-          if (container) {
-            container.innerHTML = '' // Clear existing content
-            new window.PartnersCoupang.G({
-              id: 928471,
-              template: "carousel",
-              trackingCode: "AF8730588",
-              width: "680",
-              height: "140",
-              tsource: ""
-            })
-          }
+          // Insert into wrapper first
+          container.appendChild(wrapper)
+
+          // Create a target div inside wrapper
+          const target = document.createElement('div')
+          target.id = 'coupang-target'
+          wrapper.appendChild(target)
+
+          // Initialize banner - it will append to body, so we need to move it
+          new window.PartnersCoupang.G({
+            id: 928471,
+            template: "carousel",
+            trackingCode: "AF8730588",
+            width: "680",
+            height: "140",
+            tsource: ""
+          })
+
+          // Find and move the inserted banner
+          setTimeout(() => {
+            const banner = document.querySelector('iframe[src*="ads-partners.coupang.com"]')
+            if (banner && banner.parentElement) {
+              target.appendChild(banner)
+            }
+          }, 200)
         }
       }, 100)
     }
@@ -50,6 +72,9 @@ export default function Footer() {
     return () => {
       if (document.head.contains(script1)) {
         document.head.removeChild(script1)
+      }
+      if (container) {
+        container.innerHTML = ''
       }
     }
   }, [])
